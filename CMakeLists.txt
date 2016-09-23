@@ -3,5 +3,5 @@ project(AnalizadorLexico)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
 
-set(SOURCE_FILES main.c FileUtils.c FileUtils.h)
+set(SOURCE_FILES main.c FileUtils.c FileUtils.h Separadores.c Separadores.h)
 add_executable(AnalizadorLexico ${SOURCE_FILES})

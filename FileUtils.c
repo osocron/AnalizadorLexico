@@ -3,8 +3,8 @@
 #include "FileUtils.h"
 
 //Abre el archivo y guarda en buff la cantidad de caracteres
-//especificada en size apartir de la posicion init del archivo.
-// Regresa init si hubo error o init + size si fue exitosa la operacion.
+//especificada en size apartir de la posicion INIT del archivo.
+// Regresa INIT si hubo error o INIT + size si fue exitosa la operacion.
 long int getNChars(char *buff, int size, long int init, char *nombreArchivo) {
     FILE *archivo;
     if ((archivo = fopen(nombreArchivo, "r")) == NULL) {
@@ -22,7 +22,7 @@ long int getNChars(char *buff, int size, long int init, char *nombreArchivo) {
     return init + size;
 }
 
-//Abre el archivo y escribe el contenido de buff. Regresa init_out mas size para tener
+//Abre el archivo y escribe el contenido de buff. Regresa INIT_OUT mas size para tener
 //un control de la posicion a la que se debe escribir la proxuma vez al archivo
 long int writeNCHars(char *buff, int size, long int init_out, char *nombreArchivo) {
     FILE * archivo;

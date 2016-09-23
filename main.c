@@ -12,7 +12,7 @@ long int SIG_OUT;
 int main() {
     char buffer[30];
     INIT = 0;
-    INIT = getNChars(buffer, 30, INIT, ARCHIVO_ENTRADA);
+    INIT = getNChars(buffer, 30, INIT, ARCHIVO_ENTRADA);//borrar este comentario
     for (int i = 0; i < 30; ++i) {
         printf("%c", buffer[i]);
     }

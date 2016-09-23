@@ -23,3 +23,7 @@ int main() {
     init_out = writeNCHars(other_buff, 12, init_out, "output.txt");
     return (int) init_out;
 }
+
+
+
+//Comentario desde operadoresEduardo

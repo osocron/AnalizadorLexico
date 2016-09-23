@@ -21,3 +21,17 @@ long int getNChars(char *buff, int size, long int init, char *nombreArchivo) {
     fclose(archivo);
     return init + size;
 }
+
+//Abre el archivo y escribe el contenido de buff. Regresa init_out mas size para tener
+//un control de la posicion a la que se debe escribir la proxuma vez al archivo
+long int writeNCHars(char *buff, int size, long int init_out, char *nombreArchivo) {
+    FILE * archivo;
+    if ((archivo = fopen(nombreArchivo, "r+")) == NULL) {
+        printf("Error al abrir el archivo");
+        return init_out;
+    }
+    fseek(archivo, init_out, SEEK_SET);
+    fprintf(archivo, "%s", buff);
+    fclose(archivo);
+    return init_out + size - 1;
+}

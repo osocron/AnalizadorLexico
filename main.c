@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "FileUtils.h"
 //#include "Separadores.h"
 
@@ -13,7 +14,8 @@ int main() {
     char buffer[30];
     INIT = 0;
     INIT = getNChars(buffer, 30, INIT, ARCHIVO_ENTRADA);
-    for (int i = 0; i < 30; ++i) {
+    int i=0;
+    for (i = 0; i < 30; ++i) {
         printf("%c", buffer[i]);
     }
     char other_buff[12] = "Hola mundo ";

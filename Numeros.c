@@ -5,7 +5,7 @@
 #define ESTADO_NUM 12 //-
 #define CODIGO_NUM 7 // |
 
-int lexico_num(long int *init, char *nombreArchivoEntrada) {
+int lexico_num(long int *init, char *nombreArchivoEntrada, int *eof) {
 
     unsigned int codigo;
     unsigned int salida = 0, estado = 0;
@@ -42,7 +42,7 @@ int lexico_num(long int *init, char *nombreArchivoEntrada) {
     };
 
     while (salida == 0) {
-        codigo = filtro_num(init, nombreArchivoEntrada);
+        codigo = filtro_num(init, nombreArchivoEntrada, eof);
         salida = matriz_salida_numero[estado][codigo];
         estado = matriz_transicion_numero[estado][codigo];
     }
@@ -51,10 +51,10 @@ int lexico_num(long int *init, char *nombreArchivoEntrada) {
 
 }
 
-unsigned int filtro_num(long int *init, char *nombreArchivoEntrada) {
+unsigned int filtro_num(long int *init, char *nombreArchivoEntrada, int *eof) {
 
     char buff[1];
-    *init = getNChars(buff, 1, *init, nombreArchivoEntrada);
+    *init = getNChars(buff, 1, *init, nombreArchivoEntrada, eof);
     if (buff[0] == '+')
         return 0;
     else if (buff[0] == '-')

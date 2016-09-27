@@ -5,7 +5,7 @@
 #define ESTADO_IDE 4 //-
 #define CODIGO_IDE 4 // |
 
-int lexico_ide(long int *init, char *nombreArchivoEntrada, int *contador) {
+int lexico_ide(long int *init, char *nombreArchivoEntrada, int *contador, int *eof) {
 
     unsigned int codigo;
     unsigned int salida = 0, estado = 0;
@@ -26,7 +26,7 @@ int lexico_ide(long int *init, char *nombreArchivoEntrada, int *contador) {
     };
 
     while (salida == 0) {
-        codigo = filtro_ide(init, nombreArchivoEntrada, contador);
+        codigo = filtro_ide(init, nombreArchivoEntrada, contador, eof);
         salida = matriz_salida_identificador[estado][codigo];
         estado = matriz_transicion_identificador[estado][codigo];
     }
@@ -35,11 +35,11 @@ int lexico_ide(long int *init, char *nombreArchivoEntrada, int *contador) {
 
 }
 
-unsigned int filtro_ide(long int *init, char *nombreArchivoEntrada, int *cont) {
+unsigned int filtro_ide(long int *init, char *nombreArchivoEntrada, int *cont, int *eof) {
 
     char buff[1];
     *cont += 1;
-    *init = getNChars(buff, 1, *init, nombreArchivoEntrada);
+    *init = getNChars(buff, 1, *init, nombreArchivoEntrada, eof);
     if (isalpha(buff[0]))
         return 0;
     else if (buff[0] == '_')

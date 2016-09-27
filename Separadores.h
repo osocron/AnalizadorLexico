@@ -4,6 +4,6 @@
 
 #ifndef ANALIZADORLEXICO_SEPARADORES_H
 #define ANALIZADORLEXICO_SEPARADORES_H
-int lexico_sep(long int *init, char *nombreArchivoEntrada);
-unsigned int filtro_sep(long int *init, char *nombreArchivoEntrada);
+int lexico_sep(long int *init, char *nombreArchivoEntrada, int *eof);
+unsigned int filtro_sep(long int *init, char *nombreArchivoEntrada, int *eof);
 #endif //ANALIZADORLEXICO_SEPARADORES_H

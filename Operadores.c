@@ -8,7 +8,7 @@
 #define ESTADO_OPE 42 //Estados del automata
 #define CODIGO_OPE 17 //Códigos o simbolos de entrada
 
-int lexico_ope(long int *init, char *nombreArchivoEntrada){
+int lexico_ope(long int *init, char *nombreArchivoEntrada, int *eof){
     unsigned int codigo;
     unsigned int salida=0, estado=0;
 
@@ -105,7 +105,7 @@ int lexico_ope(long int *init, char *nombreArchivoEntrada){
     };
 
     while (salida==0){
-        codigo= filtro_ope(init, nombreArchivoEntrada);
+        codigo= filtro_ope(init, nombreArchivoEntrada, eof);
         salida= matriz_salida_operadores[estado][codigo];
         estado= matriz_transicion_operadores[estado][codigo];
     }
@@ -113,9 +113,9 @@ int lexico_ope(long int *init, char *nombreArchivoEntrada){
     return salida;
 }
 
-unsigned int filtro_ope(long int *init, char *nombreArchivoEntrada){
+unsigned int filtro_ope(long int *init, char *nombreArchivoEntrada, int *eof){
     char buff[1];
-    *init= getNChars(buff, 1, *init, nombreArchivoEntrada);
+    *init= getNChars(buff, 1, *init, nombreArchivoEntrada, eof);
     if(buff[0]=='.')
         return 0;
     else if(buff[0]=='-')

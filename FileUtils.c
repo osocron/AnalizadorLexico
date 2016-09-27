@@ -7,7 +7,7 @@
 //Abre el archivo y guarda en buff la cantidad de caracteres
 //especificada en size apartir de la posicion INIT del archivo.
 // Regresa INIT si hubo error o INIT + size si fue exitosa la operacion.
-long int getNChars(char *buff, int size, long int init, char *nombreArchivo) {
+long int getNChars(char *buff, int size, long int init, char *nombreArchivo, int *eof) {
     FILE *archivo;
     if ((archivo = fopen(nombreArchivo, "r")) == NULL) {
         printf("Error al abrir el archivo");
@@ -17,7 +17,8 @@ long int getNChars(char *buff, int size, long int init, char *nombreArchivo) {
     for (int i = 0; i < size; ++i) {
         if ((buff[i] = (char) fgetc(archivo)) == EOF) {
             fclose(archivo);
-            return -1;
+            *eof = -1;
+            return init;
         }
     }
     fclose(archivo);

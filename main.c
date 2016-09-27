@@ -9,12 +9,12 @@
 #include "Separadores.h"
 #include "Operadores.h"
 
-void automata_numeros(int *token);
-void automata_identificadores(int *token);
-void automata_reservadas(int *token);
-void automata_otros(int *token);
-void automata_operadores(int *token);
-void automata_separadores(int *token);
+int automata_numeros(int *token);
+int automata_identificadores(int *token);
+int automata_reservadas(int *token);
+int automata_otros(int *token);
+int automata_operadores(int *token);
+int automata_separadores(int *token);
 
 long int INIT = 0;
 int SIG = 0;
@@ -34,24 +34,26 @@ int main() {
     int token;
 
     while (INIT >= 0) {
+        int siguiente_automata;
         token = lexico_num(&INIT, ARCHIVO_ENTRADA);
         //Dependieno el resultado de token se escribe en el archivo de salida
         //el token encontrado.
-        automata_numeros(&token);
+        siguiente_automata = automata_numeros(&token);
+
     }
 
     return 0;
 
 }
 
-void automata_numeros(int *token) {
+int automata_numeros(int *token) {
+    int siguiente_automata = 0;
     switch (*token) {
         case 1: {
             //Encontro un +|- pero no encontro un digito o punto despues
             //Ir a automata de identificadores
             INIT -= 1; //Disminuir INIT en uno para que el siguiente automata identifique +|-
-            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
-            automata_separadores(token);
+            siguiente_automata = 1;
             break;
         }
         case 2: {
@@ -62,8 +64,7 @@ void automata_numeros(int *token) {
             INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
             //Ir a siguiente automata porque se encontro un punto sin un numero depues
             INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el punto
-            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
-            automata_separadores(token);
+            siguiente_automata = 1;
             break;
         }
         case 4: {
@@ -74,8 +75,7 @@ void automata_numeros(int *token) {
             INIT_OUT = writeNCHars("DEC", 4, INIT_OUT, ARCHIVO_SALIDA);
             //Ir a siguiente automata porque se encontro un E|e sin un numero depues
             INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique E|e
-            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
-            automata_separadores(token);
+            siguiente_automata = 1;
             break;
         } // Error!
         case 6: {
@@ -83,8 +83,7 @@ void automata_numeros(int *token) {
             //Ir a siguiente automata porque se encontro un E|e depues un +|- pero
             //no se encontro un digito despues
             INIT -= 2; //Disminuir INIT en dos para que el siguiente automata indentifique apartir de E|e
-            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
-            automata_separadores(token);
+            siguiente_automata = 1;
             break;
         }
         case 7: {
@@ -94,16 +93,14 @@ void automata_numeros(int *token) {
         case 8: {
             //Ir a siguiente automata porque se encontro un punto pero sin digito depues
             INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el punto
-            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
-            automata_separadores(token);
+            siguiente_automata = 1;
             break;
         }
         case 9: {
             INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
             //Ir a siguiente porque se encontro E|e sin digito despues
             INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique E|e
-            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
-            automata_separadores(token);
+            siguiente_automata = 1;
             break;
         }
         case 10: {
@@ -111,23 +108,23 @@ void automata_numeros(int *token) {
             //Ir a siguiente automata porque se encontro un E|e depues un +|- pero
             //no se encontro un digito despues
             INIT -= 2; //Disminuir INIT en dos para que el siguiente automata indentifique apartir de E|e
-            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
-            automata_separadores(token);
+            siguiente_automata = 1;
             break;
         }
         case 11: {
             //Salida rapida
             INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el caracter desconocido
-            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
-            automata_separadores(token);
+            siguiente_automata = 1;
             break;
         }
         default:
             break;
     }
+    return siguiente_automata;
 }
 
-void automata_separadores(int *token) {
+int automata_separadores(int *token) {
+    int siguiente_automata = 0;
     switch (*token) {
         case 1: {
             INIT_OUT = writeNCHars("ACOR", 5, INIT_OUT, ARCHIVO_SALIDA);
@@ -192,9 +189,11 @@ void automata_separadores(int *token) {
         }
         default:break;
     }
+    return siguiente_automata;
 }
 
-void automata_operadores(int *token) {
+int automata_operadores(int *token) {
+    int siguiente_automata = 0;
     switch (*token) {
         case 1: {
             INIT_OUT = writeNCHars("DREF", 5, INIT_OUT, ARCHIVO_SALIDA);
@@ -334,9 +333,11 @@ void automata_operadores(int *token) {
         }
         default:break;
     }
+    return siguiente_automata;
 }
 
-void automata_otros(int *token) {
+int automata_otros(int *token) {
+    int siguiente_automata = 0;
     //Espacio, nueva linea, tab
     char buff[1];
     getNChars(buff, 1, INIT, ARCHIVO_ENTRADA);
@@ -361,9 +362,11 @@ void automata_otros(int *token) {
     else {
         //Ir a siguiente automata
     }
+    return siguiente_automata;
 }
 
-void automata_identificadores(int *token) {
+int automata_identificadores(int *token) {
+    int siguiente_automata = 0;
     switch (*token) {
         case 1: {
             //L|_
@@ -381,9 +384,11 @@ void automata_identificadores(int *token) {
         }
         default:break;
     }
+    return siguiente_automata;
 }
 
-void automata_reservadas(int *token) {
+int automata_reservadas(int *token) {
+    int siguiente_automata = 0;
     switch (*token) {
         case 0: {
 
@@ -486,4 +491,6 @@ void automata_reservadas(int *token) {
         }
         default:break;
     }
+    return siguiente_automata;
 }
+ 

@@ -7,10 +7,10 @@
 #include "FileUtils.h"
 
 
-int lexico_res(int tamPalabra,long int iniPalabra, char *nombreArchivoEntrada) {
+int lexico_res(int tamPalabra,long int *iniPalabra, char *nombreArchivoEntrada) {
 
     char token[tamPalabra];
-    iniPalabra = getNChars(token, tamPalabra, iniPalabra, nombreArchivoEntrada);
+    *iniPalabra = getNChars(token, tamPalabra, *iniPalabra, nombreArchivoEntrada);
     if (strcmp(token, "auto") == 0){
         return 0;
     }

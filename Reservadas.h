@@ -4,5 +4,5 @@
 
 #ifndef ANALIZADORLEXICO_RESERVADAS_H
 #define ANALIZADORLEXICO_RESERVADAS_H
-int lexico_res(int tamPalabra,long int iniPalabra, char *nombreArchivoEntrada);
+int lexico_res(int tamPalabra,long int *iniPalabra, char *nombreArchivoEntrada);
 #endif //ANALIZADORLEXICO_RESERVADAS_H

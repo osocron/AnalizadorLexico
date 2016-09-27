@@ -8,7 +8,7 @@
 #define ESTADO_SEP 15
 #define CODIGO_SEP 11
 
-int lexico_sep(long int init, char *nombreArchivoEntrada) {
+int lexico_sep(long int *init, char *nombreArchivoEntrada) {
 
     unsigned int codigo;
     unsigned int salida = 0, estado = 0;
@@ -59,10 +59,10 @@ int lexico_sep(long int init, char *nombreArchivoEntrada) {
     return salida;
 }
 
-unsigned int filtro_sep(long int init, char *nombreArchivoEntrada) {
+unsigned int filtro_sep(long int *init, char *nombreArchivoEntrada) {
 
     char buff[1];
-    init = getNChars(buff, 1, init, nombreArchivoEntrada);
+    *init = getNChars(buff, 1, *init, nombreArchivoEntrada);
     if (buff[0] == '[')
         return 0;
     else if (buff[0] == ']')

@@ -15,12 +15,10 @@ long int getNChars(char *buff, int size, long int init, char *nombreArchivo) {
     }
     fseek(archivo, init, SEEK_SET);
     for (int i = 0; i < size; ++i) {
-        if (feof(archivo)) {
+        if ((buff[i] = (char) fgetc(archivo)) == EOF) {
             fclose(archivo);
-            return init + i;
+            return -1;
         }
-        else
-            buff[i] = (char) fgetc(archivo);
     }
     fclose(archivo);
     return init + size;

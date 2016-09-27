@@ -1,22 +1,29 @@
 #include <stdio.h>
+#include <memory.h>
+#include <ctype.h>
 
 #include "FileUtils.h"
-#include "Reservadas.h"
 #include "Numeros.h"
 #include "Identificador.h"
 #include "Reservadas.h"
 #include "Separadores.h"
 #include "Operadores.h"
 
+void automata_numeros(int *token);
+void automata_identificadores(int *token);
+void automata_reservadas(int *token);
+void automata_otros(int *token);
+void automata_operadores(int *token);
+void automata_separadores(int *token);
+
+long int INIT = 0;
+int SIG = 0;
+long int INIT_OUT = 0;
+int SIG_OUT = 0;
+char ARCHIVO_ENTRADA[100] = "input.txt";
+char ARCHIVO_SALIDA[] = "output.txt";
 
 int main() {
-
-    long int INIT = 0;
-    //long int SIG = 0;
-    long int INIT_OUT = 0;
-    long int SIG_OUT = 0;
-    char ARCHIVO_ENTRADA[100] = "input.txt";
-    char ARCHIVO_SALIDA[] = "output.txt";
 
     //Localizar el archivo de entrada
     printf("\t\t\t\t\t-Analizador Lexico-\n");
@@ -25,74 +32,458 @@ int main() {
     //token es la variable que guarda el resultado de llamar la funcion lexico de cada
     //automata.
     int token;
-    token = lexico_num(&INIT, ARCHIVO_ENTRADA);
 
     while (INIT >= 0) {
+        token = lexico_num(&INIT, ARCHIVO_ENTRADA);
         //Dependieno el resultado de token se escribe en el archivo de salida
         //el token encontrado.
-        switch (token) {
-            case 1: {
-                //Encontro un +|- pero no encontro un digito o punto despues
-                printf("%s", "No reconocido");
-                break;
-            } //ir al siguiente automata
-            case 2: {
-                INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
-                SIG_OUT += 1;
-                token = lexico_num(&INIT, ARCHIVO_ENTRADA);
-                printf("%li", INIT);
-                break;
-            }
-            case 3: {
-                INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
-                //Ir a siguiente automata porque se encontro un punto sin un numero depues
-                break;
-            }
-            case 4: {
-                INIT_OUT = writeNCHars("DEC", 4, INIT_OUT, ARCHIVO_SALIDA);
-                SIG_OUT += 1;
-                break;
-            }
-            case 5: {
-                INIT_OUT = writeNCHars("DEC", 4, INIT_OUT, ARCHIVO_SALIDA);
-                //Ir a siguiente automata porque se encontro un E|e sin un numero depues
-                break;
-            } // Error!
-            case 6: {
-                INIT_OUT = writeNCHars("DEC", 4, INIT_OUT, ARCHIVO_SALIDA);
-                //Ir a siguiente automata porque se encontro un E|e depues un +|- pero
-                //no se encontro un digito despues
-                break;
-            }
-            case 7: {
-                INIT_OUT = writeNCHars("CTF", 4, INIT_OUT, ARCHIVO_SALIDA);
-                SIG_OUT += 1;
-                break;
-            }
-            case 8: {
-                //Ir a siguiente automata porque se encontro un punto pero sin digito depues
-                break;
-            }
-            case 9: {
-                INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
-                //Ir a siguiente porque se encontro E|e sin digito despues
-                break;
-            }
-            case 10: {
-                INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
-                //Ir a siguiente automata porque se encontro un E|e depues un +|- pero
-                //no se encontro un digito despues
-                break;
-            }
-            case 11: {
-                //Salida rapida
-                break;
-            }
-            default:
-                break;
-        }
+        automata_numeros(&token);
     }
 
     return 0;
 
+}
+
+void automata_numeros(int *token) {
+    switch (*token) {
+        case 1: {
+            //Encontro un +|- pero no encontro un digito o punto despues
+            //Ir a automata de identificadores
+            INIT -= 1; //Disminuir INIT en uno para que el siguiente automata identifique +|-
+            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
+            automata_separadores(token);
+            break;
+        }
+        case 2: {
+            INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 3: {
+            INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
+            //Ir a siguiente automata porque se encontro un punto sin un numero depues
+            INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el punto
+            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
+            automata_separadores(token);
+            break;
+        }
+        case 4: {
+            INIT_OUT = writeNCHars("DEC", 4, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 5: {
+            INIT_OUT = writeNCHars("DEC", 4, INIT_OUT, ARCHIVO_SALIDA);
+            //Ir a siguiente automata porque se encontro un E|e sin un numero depues
+            INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique E|e
+            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
+            automata_separadores(token);
+            break;
+        } // Error!
+        case 6: {
+            INIT_OUT = writeNCHars("DEC", 4, INIT_OUT, ARCHIVO_SALIDA);
+            //Ir a siguiente automata porque se encontro un E|e depues un +|- pero
+            //no se encontro un digito despues
+            INIT -= 2; //Disminuir INIT en dos para que el siguiente automata indentifique apartir de E|e
+            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
+            automata_separadores(token);
+            break;
+        }
+        case 7: {
+            INIT_OUT = writeNCHars("CTF", 4, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 8: {
+            //Ir a siguiente automata porque se encontro un punto pero sin digito depues
+            INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el punto
+            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
+            automata_separadores(token);
+            break;
+        }
+        case 9: {
+            INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
+            //Ir a siguiente porque se encontro E|e sin digito despues
+            INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique E|e
+            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
+            automata_separadores(token);
+            break;
+        }
+        case 10: {
+            INIT_OUT = writeNCHars("DIG", 4, INIT_OUT, ARCHIVO_SALIDA);
+            //Ir a siguiente automata porque se encontro un E|e depues un +|- pero
+            //no se encontro un digito despues
+            INIT -= 2; //Disminuir INIT en dos para que el siguiente automata indentifique apartir de E|e
+            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
+            automata_separadores(token);
+            break;
+        }
+        case 11: {
+            //Salida rapida
+            INIT -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el caracter desconocido
+            *token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &SIG);
+            automata_separadores(token);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void automata_separadores(int *token) {
+    switch (*token) {
+        case 1: {
+            INIT_OUT = writeNCHars("ACOR", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 2: {
+            INIT_OUT = writeNCHars("CCOR", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 3: {
+            INIT_OUT = writeNCHars("APAR", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 4: {
+            INIT_OUT = writeNCHars("CPAR", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 5: {
+            INIT_OUT = writeNCHars("ALLA", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 6: {
+            INIT_OUT = writeNCHars("CLLA", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 7: {
+            INIT_OUT = writeNCHars("COMM", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 8: {
+            INIT_OUT = writeNCHars("PCOM", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 9: {
+            INIT_OUT = writeNCHars("DDOT", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 10: {
+            INIT_OUT = writeNCHars("DDDT", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 11: {
+            //Se encontro un punto, ir a automata de operadores
+            INIT -= 1;
+            *token = lexico_ope(&INIT, ARCHIVO_ENTRADA);
+            break;
+        }
+        case 12: {
+            //Se encontraron dos puntos, ir a automata de operadores
+            INIT -= 2;
+            *token = lexico_ope(&INIT, ARCHIVO_ENTRADA);
+            break;
+        }
+        case 13: {
+            INIT_OUT = writeNCHars("ELPS", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 14: {
+            //Salida ir a siguiente automata
+            *token = lexico_ope(&INIT, ARCHIVO_ENTRADA);
+            break;
+        }
+        default:break;
+    }
+}
+
+void automata_operadores(int *token) {
+    switch (*token) {
+        case 1: {
+            INIT_OUT = writeNCHars("DREF", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 2: {
+            INIT_OUT = writeNCHars("DPTM", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 3: {
+            INIT_OUT = writeNCHars("REST", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 4: {
+            INIT_OUT = writeNCHars("SREF", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 5: {
+            INIT_OUT = writeNCHars("DECR", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 6: {
+            INIT_OUT = writeNCHars("DDSG", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 7: {
+            INIT_OUT = writeNCHars("APTM", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 8: {
+            INIT_OUT = writeNCHars("SUM", 4, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 9: {
+            INIT_OUT = writeNCHars("INC", 4, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 10: {
+            INIT_OUT = writeNCHars("AASG", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 11: {
+            INIT_OUT = writeNCHars("BAND", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 12: {
+            INIT_OUT = writeNCHars("LAND", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 13: {
+            INIT_OUT = writeNCHars("BAAS", 5, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 14: {
+
+        }
+        case 15: {
+
+        }
+        case 16: {
+
+        }
+        case 17: {
+
+        }
+        case 18: {
+
+        }
+        case 19: {
+
+        }
+        case 20: {
+
+        }
+        case 21: {
+
+        }
+        case 22: {
+
+        }
+        case 23: {
+
+        }
+        case 24: {
+
+        }
+        case 25: {
+
+        }
+        case 26: {
+
+        }
+        case 27: {
+
+        }
+        case 28: {
+
+        }
+        case 29: {
+
+        }
+        case 30: {
+
+        }
+        case 31: {
+
+        }
+        case 32: {
+
+        }
+        case 33: {
+
+        }
+        case 34: {
+
+        }
+        case 35: {
+
+        }
+        case 36: {
+
+        }
+        case 37: {
+
+        }
+        case 38: {
+
+        }
+        case 39: {
+
+        }
+        case 40: {
+
+        }
+        case 41: {
+
+        }
+        default:break;
+    }
+}
+
+void automata_otros(int *token) {
+    //Espacio, nueva linea, tab
+    char buff[1];
+    getNChars(buff, 1, INIT, ARCHIVO_ENTRADA);
+    if (isspace(buff[0])){
+
+    }
+    else if (strcmp(buff, "\t") == 0){
+
+    }
+    else if (strcmp(buff, "\n") == 0){
+
+    }
+    else if (strcmp(buff, "\v") == 0){
+
+    }
+    else if (strcmp(buff, "\f") == 0){
+
+    }
+    else if (strcmp(buff, "\r") == 0){
+
+    }
+    else {
+        //Ir a siguiente automata
+    }
+}
+
+void automata_identificadores(int *token) {
+    switch (*token) {
+        case 1: {
+            //L|_
+            //Ir a automata de reservadas?
+            break;
+        }
+        case 2: {
+            //L|_|D
+            //Ir a automata de reservadas?
+            break;
+        }
+        case 3: {
+            //Salida rapida ir a automata Operadores?
+            break;
+        }
+        default:break;
+    }
+}
+
+void automata_reservadas(int *token) {
+    switch (*token) {
+        case 0: {
+
+        }
+        case 1: {
+
+        }
+        case 2: {
+
+        }
+        case 3: {
+
+        }
+        case 4: {
+
+        }
+        case 5: {
+
+        }
+        case 6: {
+
+        }
+        case 7: {
+
+        }
+        case 8: {
+
+        }
+        case 9: {
+
+        }
+        case 10: {
+
+        }
+        case 11: {
+
+        }
+        case 12: {
+
+        }
+        case 13: {
+
+        }
+        case 14: {
+
+        }
+        case 15: {
+
+        }
+        case 16: {
+
+        }
+        case 17: {
+
+        }
+        case 18: {
+
+        }
+        case 19: {
+
+        }
+        case 20: {
+
+        }
+        case 21: {
+
+        }
+        case 22: {
+
+        }
+        case 23: {
+
+        }
+        case 24: {
+
+        }
+        case 25: {
+
+        }
+        case 26: {
+
+        }
+        case 27: {
+
+        }
+        case 28: {
+
+        }
+        case 29: {
+
+        }
+        case 30: {
+
+        }
+        case 31: {
+
+        }
+        case 32: {
+            //No es palabra reservada
+        }
+        default:break;
+    }
 }

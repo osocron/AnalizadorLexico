@@ -5,7 +5,7 @@
 #define ESTADO_IDE 4 //-
 #define CODIGO_IDE 4 // |
 
-int lexico_ide(long int *init, char *nombreArchivoEntrada, int contador) {
+int lexico_ide(long int *init, char *nombreArchivoEntrada, int *contador) {
 
     unsigned int codigo;
     unsigned int salida = 0, estado = 0;
@@ -35,10 +35,10 @@ int lexico_ide(long int *init, char *nombreArchivoEntrada, int contador) {
 
 }
 
-unsigned int filtro_ide(long int *init, char *nombreArchivoEntrada, int cont) {
+unsigned int filtro_ide(long int *init, char *nombreArchivoEntrada, int *cont) {
 
     char buff[1];
-    cont++;
+    *cont += 1;
     *init = getNChars(buff, 1, *init, nombreArchivoEntrada);
     if (isalpha(buff[0]))
         return 0;

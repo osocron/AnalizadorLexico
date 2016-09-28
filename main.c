@@ -9,20 +9,21 @@
 #include "Separadores.h"
 #include "Operadores.h"
 #include "Comentarios.h"
+#include "Otros.h"
 
 int automata_numeros(int *token, long int *init);
 int automata_comentarios(int *token,  long int *init);
 int automata_identificadores(int *token, long int *init);
 int automata_reservadas(int *token, long int *init);
-int automata_otros(int *token, long int *init, int *eof);
+int automata_otros(int *token, long int *init);
 int automata_operadores(int *token, long int *init);
 int automata_separadores(int *token, long int *init);
 
 int SIG = 0;
 long int INIT_OUT = 0;
 int SIG_OUT = 0;
-char ARCHIVO_ENTRADA[100] = "input.txt";
-char ARCHIVO_SALIDA[] = "output.txt";
+char ARCHIVO_ENTRADA[] = "input.c";
+char ARCHIVO_SALIDA[] = "output.lex";
 
 int main() {
 
@@ -31,7 +32,7 @@ int main() {
 
     //Localizar el archivo de entrada
     printf("\t\t\t\t\t-Analizador Lexico-\n");
-    //seleccionarArchivo(ARCHIVO_ENTRADA);
+    //seleccionarArchivo(ARCHIVO_ENTRADA, ARCHIVO_SALIDA);
 
     //token es la variable que guarda el resultado de llamar la funcion lexico de cada
     //automata.
@@ -54,8 +55,17 @@ int main() {
         if (siguiente_automata == 2) {
             token = lexico_com(&INIT, ARCHIVO_ENTRADA, &eof);
             siguiente_automata = automata_comentarios(&token, &INIT);
-            siguiente_automata = 0; //Momentariamente
             INIT -= 1;
+        }
+        if (siguiente_automata == 3) {
+            token = lexico_ope(&INIT, ARCHIVO_ENTRADA, &eof);
+            siguiente_automata = automata_operadores(&token, &INIT);
+            INIT -= 1;
+        }
+        if (siguiente_automata == 4) {
+            token = lexico_otros(&INIT, ARCHIVO_ENTRADA, &eof);
+            siguiente_automata = automata_otros(&token, &INIT);
+            siguiente_automata = 0; //Momentariamente
         }
     }
 
@@ -229,7 +239,6 @@ int automata_comentarios(int *token,  long int *init) {
 }
 
 int automata_operadores(int *token, long int *init) {
-    int siguiente_automata = 0;
     switch (*token) {
         case 1: {
             INIT_OUT = writeNCHars("DREF", 5, INIT_OUT, ARCHIVO_SALIDA);
@@ -393,39 +402,45 @@ int automata_operadores(int *token, long int *init) {
             break;
         }
         case 41: {
-            siguiente_automata = 4;
             *init -= 1;
         }
         default:break;
     }
-    return siguiente_automata;
+    return 4;
 }
 
-int automata_otros(int *token, long int *init, int *eof) {
+int automata_otros(int *token, long int *init) {
     //Espacio, nueva linea, tab
-    char buff[1];
-    getNChars(buff, 1, *init, ARCHIVO_ENTRADA, eof);
-    if (isspace(buff[0])){
-        INIT_OUT = writeNCHars(" ", 2, INIT_OUT, ARCHIVO_SALIDA);
-    }
-    else if (strcmp(buff, "\t") == 0){
-        INIT_OUT = writeNCHars("\t", 2, INIT_OUT, ARCHIVO_SALIDA);
-    }
-    else if (strcmp(buff, "\n") == 0){
-        INIT_OUT = writeNCHars("\n", 2, INIT_OUT, ARCHIVO_SALIDA);
-    }
-    else if (strcmp(buff, "\v") == 0){
-        INIT_OUT = writeNCHars("\v", 2, INIT_OUT, ARCHIVO_SALIDA);
-    }
-    else if (strcmp(buff, "\f") == 0){
-        INIT_OUT = writeNCHars("\f", 2, INIT_OUT, ARCHIVO_SALIDA);
-    }
-    else if (strcmp(buff, "\r") == 0){
-        INIT_OUT = writeNCHars("\r", 2, INIT_OUT, ARCHIVO_SALIDA);
-    }
-    else {
-        //Ir a siguiente automata
-        *init -= 1;
+    switch (*token) {
+        case 1: {
+            INIT_OUT = writeNCHars(" ", 2, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 2: {
+            INIT_OUT = writeNCHars("   ", 4, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 3: {
+            INIT_OUT = writeNCHars("\n", 2, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 4: {
+            INIT_OUT = writeNCHars("\v", 2, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 5: {
+            INIT_OUT = writeNCHars("\f", 2, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 6: {
+            INIT_OUT = writeNCHars("\r ", 2, INIT_OUT, ARCHIVO_SALIDA);
+            break;
+        }
+        case 7: {
+            *init -= 1;
+            break;
+        }
+        default:break;
     }
     return 5;
 }

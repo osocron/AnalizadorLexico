@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include<stdlib.h>
+#include <memory.h>
 #include "FileUtils.h"
 
 //Abre el archivo y guarda en buff la cantidad de caracteres
@@ -18,7 +19,7 @@ long int getNChars(char *buff, int size, long int init, char *nombreArchivo, int
         if ((buff[i] = (char) fgetc(archivo)) == EOF) {
             fclose(archivo);
             *eof = -1;
-            return init;
+            return init + size;
         }
     }
     fclose(archivo);
@@ -39,17 +40,31 @@ long int writeNCHars(char *buff, int size, long int init_out, char *nombreArchiv
     return init_out + size - 1;
 }
 
-void seleccionarArchivo(char *ARCHIVO_ENTRADA){
+void seleccionarArchivo(char *ARCHIVO_ENTRADA, char *ARCHIVO_SALIDA) {
     FILE *archivo;
-    printf("Dame el nombre del archivo (con extension): ");
+    char auxiliar[100];
+    printf("Dame el nombre del archivo .c: ");
     do{
         fflush(stdin);
-        scanf("%s", ARCHIVO_ENTRADA);
+        scanf("%s", auxiliar);
+        ARCHIVO_ENTRADA = NULL;
+        strcat(ARCHIVO_ENTRADA, auxiliar);
+        strcat(ARCHIVO_ENTRADA,".c");
         archivo=fopen(ARCHIVO_ENTRADA, "r");
         if(archivo==NULL)
-            printf("\t*El archivo \"%s\" no existe o no se encuentra en la carpeta.\n\nIngrese un nombre valido (con extension): ",ARCHIVO_ENTRADA);
+            printf("\t*El archivo \"%s\" no existe o no se encuentra en la carpeta.\n\nIngrese un nombre valido (sin extension): ",ARCHIVO_ENTRADA);
         else
             fclose(archivo);
     }while(archivo==NULL);
     clear();
+    ARCHIVO_SALIDA = NULL;
+    strcat(ARCHIVO_SALIDA, auxiliar);
+    strcat(ARCHIVO_SALIDA,".lex");
+    crearArchivoSalida(ARCHIVO_SALIDA);
+}
+
+void crearArchivoSalida(char *ARCHIVO_SALIDA) {
+    FILE *archivo;
+    archivo=fopen(ARCHIVO_SALIDA, "w");
+    fclose(archivo);
 }

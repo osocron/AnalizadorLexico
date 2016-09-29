@@ -13,26 +13,26 @@
 
 int automata_numeros(int *token, long int *init);
 int automata_comentarios(int *token,  long int *init);
-int automata_identificadores(int *token, long int *init);
+int automata_identificadores(int *token, long int *init, int *tamPalabra, int *eof);
 int automata_reservadas(int *token, long int *init);
 int automata_otros(int *token, long int *init);
 int automata_operadores(int *token, long int *init);
 int automata_separadores(int *token, long int *init);
 
-int SIG = 0;
 long int INIT_OUT = 0;
-int SIG_OUT = 0;
 char ARCHIVO_ENTRADA[] = "input.c";
 char ARCHIVO_SALIDA[] = "output.lex";
 
 int main() {
 
     long int INIT = 0;
+    int TAM_PALABRA = 0;
     int eof = 0;
 
     //Localizar el archivo de entrada
     printf("\t\t\t\t\t-Analizador Lexico-\n");
-    //seleccionarArchivo(ARCHIVO_ENTRADA, ARCHIVO_SALIDA);
+    //seleccionarArchivo(ARCHIVO_ENTRADA);
+    //crearArchivoSalida(ARCHIVO_ENTRADA, ARCHIVO_SALIDA);
 
     //token es la variable que guarda el resultado de llamar la funcion lexico de cada
     //automata.
@@ -65,8 +65,13 @@ int main() {
         if (siguiente_automata == 4) {
             token = lexico_otros(&INIT, ARCHIVO_ENTRADA, &eof);
             siguiente_automata = automata_otros(&token, &INIT);
-            siguiente_automata = 0; //Momentariamente
         }
+        if (siguiente_automata == 5) {
+            token = lexico_ide(&INIT, ARCHIVO_ENTRADA, &TAM_PALABRA, &eof);
+            automata_identificadores(&token, &INIT, &TAM_PALABRA, &eof);
+            siguiente_automata = 0;
+        }
+        TAM_PALABRA = 0;
     }
 
     return 0;
@@ -83,7 +88,7 @@ int automata_numeros(int *token, long int *init) {
         }
         case 2: {
             INIT_OUT = writeNCHars("DIG ", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 3: {
             INIT_OUT = writeNCHars("DIG ", 5, INIT_OUT, ARCHIVO_SALIDA);
@@ -93,7 +98,7 @@ int automata_numeros(int *token, long int *init) {
         }
         case 4: {
             INIT_OUT = writeNCHars("DEC ", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 5: {
             INIT_OUT = writeNCHars("DEC ", 5, INIT_OUT, ARCHIVO_SALIDA);
@@ -110,7 +115,7 @@ int automata_numeros(int *token, long int *init) {
         }
         case 7: {
             INIT_OUT = writeNCHars("CTF ", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 8: {
             //Ir a siguiente automata porque se encontro un punto pero sin digito depues
@@ -145,43 +150,43 @@ int automata_separadores(int *token, long int *init) {
     switch (*token) {
         case 1: {
             INIT_OUT = writeNCHars("ACOR ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 2: {
             INIT_OUT = writeNCHars("CCOR ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 3: {
             INIT_OUT = writeNCHars("APAR ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 4: {
             INIT_OUT = writeNCHars("CPAR ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 5: {
             INIT_OUT = writeNCHars("ALLA ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 6: {
             INIT_OUT = writeNCHars("CLLA ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 7: {
             INIT_OUT = writeNCHars("COMM ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 8: {
             INIT_OUT = writeNCHars("PCOM ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 9: {
             INIT_OUT = writeNCHars("DDOT ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 10: {
             INIT_OUT = writeNCHars("DDDT ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 11: {
             //Se encontro un punto, ir a automata de operadores
@@ -195,7 +200,7 @@ int automata_separadores(int *token, long int *init) {
         }
         case 13: {
             INIT_OUT = writeNCHars("ELPS ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 14: {
             //Salida ir a siguiente automata
@@ -215,11 +220,11 @@ int automata_comentarios(int *token,  long int *init) {
         }
         case 2: {
             INIT_OUT=writeNCHars("COM ", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 3: {
             INIT_OUT=writeNCHars("ACOM ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 4: { //Sale asterisco pero no es comentario
             *init -= 1;
@@ -227,7 +232,7 @@ int automata_comentarios(int *token,  long int *init) {
         }
         case 5: {
             INIT_OUT=writeNCHars("CCOM ", 6, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 6: {
             *init -= 1;
@@ -242,164 +247,163 @@ int automata_operadores(int *token, long int *init) {
     switch (*token) {
         case 1: {
             INIT_OUT = writeNCHars("DREF", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 2: {
             INIT_OUT = writeNCHars("DPTM", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 3: {
             INIT_OUT = writeNCHars("REST", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 4: {
             INIT_OUT = writeNCHars("SREF", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 5: {
             INIT_OUT = writeNCHars("DECR", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 6: {
             INIT_OUT = writeNCHars("DDSG", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 7: {
             INIT_OUT = writeNCHars("APTM", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 8: {
             INIT_OUT = writeNCHars("SUM", 4, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 9: {
             INIT_OUT = writeNCHars("INC", 4, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 10: {
             INIT_OUT = writeNCHars("AASG", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 11: {
             INIT_OUT = writeNCHars("BAND", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 12: {
             INIT_OUT = writeNCHars("LAND", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 13: {
             INIT_OUT = writeNCHars("BAAS", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 14: {
-            //A partir de aqui
             INIT_OUT = writeNCHars("MULT", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 15: {
             INIT_OUT = writeNCHars("MASG", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 16: {
             INIT_OUT = writeNCHars("BNOT", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 17: {
             INIT_OUT = writeNCHars("LNOT", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 18: {
             INIT_OUT = writeNCHars("NEQT", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 19: {
             INIT_OUT = writeNCHars("DIV", 4, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 20: {
             INIT_OUT = writeNCHars("DASG", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 21: {
             INIT_OUT = writeNCHars("MOD", 4, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 22: {
             INIT_OUT = writeNCHars("MDSG", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 23: {
             INIT_OUT = writeNCHars("LTHN", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 24: {
             INIT_OUT = writeNCHars("BLSH", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 25: {
             INIT_OUT = writeNCHars("BLSA", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 26: {
             INIT_OUT = writeNCHars("LEQT", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 27: {
             INIT_OUT = writeNCHars("GTHN", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 28: {
             INIT_OUT = writeNCHars("BRSH", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 29: {
             INIT_OUT = writeNCHars("BRSA", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 30: {
             INIT_OUT = writeNCHars("GEQT", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 31: {
             INIT_OUT = writeNCHars("ASSG", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 32: {
             INIT_OUT = writeNCHars("EQUT", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 33: {
             INIT_OUT = writeNCHars("BXOR", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 34: {
             INIT_OUT = writeNCHars("BXAS", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 35: {
             INIT_OUT = writeNCHars("BOR", 4, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 36: {
             INIT_OUT = writeNCHars("LOR", 4, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 37: {
             INIT_OUT = writeNCHars("EXO", 4, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 38: {
             INIT_OUT = writeNCHars("EXOP", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 39: {
             INIT_OUT = writeNCHars("HASH", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 40: {
             INIT_OUT = writeNCHars("DHSH", 5, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 41: {
             *init -= 1;
@@ -414,27 +418,27 @@ int automata_otros(int *token, long int *init) {
     switch (*token) {
         case 1: {
             INIT_OUT = writeNCHars(" ", 2, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 2: {
             INIT_OUT = writeNCHars("   ", 4, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 3: {
             INIT_OUT = writeNCHars("\n", 2, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 4: {
             INIT_OUT = writeNCHars("\v", 2, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 5: {
             INIT_OUT = writeNCHars("\f", 2, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 6: {
             INIT_OUT = writeNCHars("\r ", 2, INIT_OUT, ARCHIVO_SALIDA);
-            break;
+            return 0;
         }
         case 7: {
             *init -= 1;
@@ -445,31 +449,35 @@ int automata_otros(int *token, long int *init) {
     return 5;
 }
 
-int automata_identificadores(int *token, long int *init) {
+int automata_identificadores(int *token, long int *init, int *tamPalabra, int *eof) {
     int esReservada;
     switch (*token) {
         case 1: {//L|_
+            *token = lexico_res(*tamPalabra, init, ARCHIVO_ENTRADA, eof);
             esReservada= automata_reservadas(token, init);
             if (esReservada==0){
-                INIT_OUT =writeNCHars("ID", 3, INIT_OUT, ARCHIVO_SALIDA);
+                INIT_OUT =writeNCHars("ID ", 4, INIT_OUT, ARCHIVO_SALIDA);
             }
             break;
         }
         case 2: {//L|_|D
+            *token = lexico_res(*tamPalabra, init, ARCHIVO_ENTRADA, eof);
             esReservada= automata_reservadas( token, init);
             if (esReservada==0){
-                INIT_OUT =writeNCHars("ID", 3, INIT_OUT, ARCHIVO_SALIDA);
+                INIT_OUT =writeNCHars("ID ", 4, INIT_OUT, ARCHIVO_SALIDA);
             }
             break;
         }
         case 3: {
-            //Salida rapida ir a automata Operadores?
-            *init -= 1;
+            //Es error o final de archivo
+            if (*eof != -1)
+                INIT_OUT = writeNCHars("ERR ", 5, INIT_OUT, ARCHIVO_SALIDA);
+            else
+                INIT_OUT = writeNCHars("EOF ", 5, INIT_OUT, ARCHIVO_SALIDA);
+            *init -= *tamPalabra;
             break;
         }
-        default:
-            *init -= 1;
-            break;
+        default: break;
     }
     return 6;
 }
@@ -613,4 +621,3 @@ int automata_reservadas(int *token, long int *init) {
     }
     return esReservada;
 }
- 

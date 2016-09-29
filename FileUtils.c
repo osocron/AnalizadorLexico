@@ -1,5 +1,3 @@
-#define clear() printf("\033[H\033[J")
-
 #include <stdio.h>
 #include<stdlib.h>
 #include <memory.h>
@@ -15,7 +13,7 @@ long int getNChars(char *buff, int size, long int init, char *nombreArchivo, int
         return init;
     }
     fseek(archivo, init, SEEK_SET);
-    for (int i = 0; i < size; ++i) {
+    for (int i=0; i < size; ++i) {
         if ((buff[i] = (char) fgetc(archivo)) == EOF) {
             fclose(archivo);
             *eof = -1;
@@ -40,31 +38,35 @@ long int writeNCHars(char *buff, int size, long int init_out, char *nombreArchiv
     return init_out + size - 1;
 }
 
-void seleccionarArchivo(char *ARCHIVO_ENTRADA, char *ARCHIVO_SALIDA) {
+void seleccionarArchivo(char *ARCHIVO_ENTRADA){
     FILE *archivo;
-    char auxiliar[100];
-    printf("Dame el nombre del archivo .c: ");
+    printf("Dame el nombre del archivo (con extension): ");
     do{
         fflush(stdin);
-        scanf("%s", auxiliar);
-        ARCHIVO_ENTRADA = NULL;
-        strcat(ARCHIVO_ENTRADA, auxiliar);
-        strcat(ARCHIVO_ENTRADA,".c");
+        scanf("%s", ARCHIVO_ENTRADA);
         archivo=fopen(ARCHIVO_ENTRADA, "r");
         if(archivo==NULL)
-            printf("\t*El archivo \"%s\" no existe o no se encuentra en la carpeta.\n\nIngrese un nombre valido (sin extension): ",ARCHIVO_ENTRADA);
+            printf("\t*El archivo \"%s\" no existe o no se encuentra en la carpeta.\n\nIngrese un nombre valido (con extension): ",ARCHIVO_ENTRADA);
         else
             fclose(archivo);
     }while(archivo==NULL);
-    clear();
-    ARCHIVO_SALIDA = NULL;
-    strcat(ARCHIVO_SALIDA, auxiliar);
-    strcat(ARCHIVO_SALIDA,".lex");
-    crearArchivoSalida(ARCHIVO_SALIDA);
 }
-
-void crearArchivoSalida(char *ARCHIVO_SALIDA) {
+//metodo para la creación de archivo de salida con extensión ".lex"
+void crearArchivoSalida(char *ARCHIVO_ENTRADA,char *ARCHIVO_SALIDA){
     FILE *archivo;
-    archivo=fopen(ARCHIVO_SALIDA, "w");
-    fclose(archivo);
+    size_t longitud= strlen(ARCHIVO_ENTRADA), contador=longitud-1;
+    while(contador>=0){
+        //realiza recorrido del nombre del archipo para encontar el "."
+        if(ARCHIVO_ENTRADA[contador]=='.'){
+            //si encontro el punto realiza el cambio de la extension de nombre.origen hacia destino.lex
+            strncpy(ARCHIVO_SALIDA, ARCHIVO_ENTRADA, contador);//consigue nombre sin extensión (archivos .c)
+            strcat( ARCHIVO_SALIDA, ".lex" );
+            archivo=fopen(ARCHIVO_SALIDA, "w");
+            fclose(archivo);
+            break;
+        }
+        else{//si en la posición no se encontro el punto, se dirigira el apuntado hacia atras.
+            contador--;
+        }
+    }
 }

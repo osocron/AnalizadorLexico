@@ -20,8 +20,8 @@ int automata_operadores(int *token, long int *init);
 int automata_separadores(int *token, long int *init);
 
 long int INIT_OUT = 0;
-char ARCHIVO_ENTRADA[] = "input.c";
-char ARCHIVO_SALIDA[] = "output.lex";
+char ARCHIVO_ENTRADA[100];
+char ARCHIVO_SALIDA[100];
 
 int main() {
 
@@ -31,8 +31,8 @@ int main() {
 
     //Localizar el archivo de entrada
     printf("\t\t\t\t\t-Analizador Lexico-\n");
-    //seleccionarArchivo(ARCHIVO_ENTRADA);
-    //crearArchivoSalida(ARCHIVO_ENTRADA, ARCHIVO_SALIDA);
+    seleccionarArchivo(ARCHIVO_ENTRADA);
+    crearArchivoSalida(ARCHIVO_ENTRADA, ARCHIVO_SALIDA);
 
     //token es la variable que guarda el resultado de llamar la funcion lexico de cada
     //automata.

@@ -472,9 +472,15 @@ int automata_identificadores(int *token, long int *init, int *tamPalabra, int *e
             //Es error o final de archivo
             if (*eof != -1)
                 INIT_OUT = writeNCHars("ERR ", 5, INIT_OUT, ARCHIVO_SALIDA);
-            else
-                INIT_OUT = writeNCHars("EOF ", 5, INIT_OUT, ARCHIVO_SALIDA);
-            *init -= *tamPalabra;
+            else {
+                char buff[1];
+                getNChars(buff, 1, *init - *tamPalabra, ARCHIVO_ENTRADA, eof);
+                if (buff[0] == EOF)
+                    INIT_OUT = writeNCHars("EOF ", 5, INIT_OUT, ARCHIVO_SALIDA);
+                else
+                    INIT_OUT = writeNCHars("ERR ", 5, INIT_OUT, ARCHIVO_SALIDA);
+            }
+            *init -= *tamPalabra - 1;
             break;
         }
         default: break;

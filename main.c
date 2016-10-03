@@ -73,7 +73,7 @@ int main() {
         }
         TAM_PALABRA = 0;
     }
-
+	printf("\n \n \n \n-Archivo \"%s\" creado correctamente.-",ARCHIVO_SALIDA);
     return 0;
 
 }
@@ -81,8 +81,7 @@ int main() {
 int automata_numeros(int *token, long int *init) {
     switch (*token) {
         case 1: {
-            //Encontro un +|- pero no encontro un digito o punto despues
-            //Ir a automata de identificadores
+            //Encontro un punto
             *init -= 1; //Disminuir INIT en uno para que el siguiente automata identifique +|-
             break;
         }
@@ -91,7 +90,7 @@ int automata_numeros(int *token, long int *init) {
             return 0;
         }
         case 3: {
-            INIT_OUT = writeNCHars("DIG ", 5, INIT_OUT, ARCHIVO_SALIDA);
+            INIT_OUT = writeNCHars("DEC ", 5, INIT_OUT, ARCHIVO_SALIDA);
             //Ir a siguiente automata porque se encontro un punto sin un numero depues
             *init -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el punto
             break;
@@ -118,24 +117,19 @@ int automata_numeros(int *token, long int *init) {
             return 0;
         }
         case 8: {
-            //Ir a siguiente automata porque se encontro un punto pero sin digito depues
-            *init -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el punto
-            break;
-        }
-        case 9: {
             INIT_OUT = writeNCHars("DIG ", 5, INIT_OUT, ARCHIVO_SALIDA);
             //Ir a siguiente porque se encontro E|e sin digito despues
             *init -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique E|e
             break;
         }
-        case 10: {
+        case 9: {
             INIT_OUT = writeNCHars("DIG ", 5, INIT_OUT, ARCHIVO_SALIDA);
             //Ir a siguiente automata porque se encontro un E|e depues un +|- pero
             //no se encontro un digito despues
             *init -= 2; //Disminuir INIT en dos para que el siguiente automata indentifique apartir de E|e
             break;
         }
-        case 11: {
+        case 10: {
             //Salida rapida
             *init -= 1; //Disminuir INIT en uno para que el siguiente automata indentifique el caracter desconocido
             break;
